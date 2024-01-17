@@ -8,21 +8,21 @@ import java.util.Comparator;
 public class GameLogic implements PlayableLogic {
 
 	// Data Members
-	private final ConcretePiece[][] board;                	// A 2D array that represents the board game which stores the ConcretePieces
+	private final ConcretePiece[][] board;                    // A 2D array that represents the board game which stores the ConcretePieces
 	private ArrayList<Position> movesHistory = new ArrayList<Position>();            // an ArrayList to keep track of moves of all players
 	private ConcretePiece[] defensePieces = new ConcretePiece[NUMBER_OF_DEFENDERS];       // 1D Array for storing the defenders
 	private ConcretePiece[] attackPieces = new ConcretePiece[NUMBER_OF_ATTACKERS];        // 1D Array for storing the attackers
-	private final ConcretePlayer defender;            		// A variable represents Player 1
-	private final ConcretePlayer attacker;        		    // A variable represents Player 2
-	private King theKing;                           		// An object for the King who is unique on the board
+	private final ConcretePlayer defender;                    // A variable represents Player 1
+	private final ConcretePlayer attacker;                    // A variable represents Player 2
+	private King theKing;                                // An object for the King who is unique on the board
 	private final Position CORNER_UP_LEFT = new Position(0, 0);                      // 1st corner of the board game
 	private final Position CORNER_UP_RIGHT = new Position(0, BOARD_SIZE - 1);        // 2nd corner of the board game
 	private final Position CORNER_DOWN_LEFT = new Position(BOARD_SIZE - 1, 0);       // 3rd corner of the board game
 	private final Position CORNER_DOWN_RIGHT = new Position(BOARD_SIZE - 1, BOARD_SIZE - 1);    // 4th corner of the board game
-	public static final int BOARD_SIZE = 11;        		// Given a board size of 11x11
+	public static final int BOARD_SIZE = 11;                // Given a board size of 11x11
 	public static final int NUMBER_OF_DEFENDERS = 13;       // Number of defenders (including the King)
 	public static final int NUMBER_OF_ATTACKERS = 24;       // Number of attackers
-	private boolean isDefenderTurn;                  		// A flag to switch turns between players
+	private boolean isDefenderTurn;                        // A flag to switch turns between players
 
 
 	// Constructor
@@ -76,32 +76,32 @@ public class GameLogic implements PlayableLogic {
 	// This method prints a data regarding a game after any player's victory
 	private void showStatistic() {
 
-		ConcretePlayer winner = getCurrentPlayer();		// The winner plays the last turn
-		ConcretePiece[] firstArray = attackPieces;		// A reference to the attackers' array
-		ConcretePiece[] SecondArray = defensePieces;	// A reference to the defenders' array
+		ConcretePlayer winner = getCurrentPlayer();        // The winner plays the last turn
+		ConcretePiece[] firstArray = attackPieces;        // A reference to the attackers' array
+		ConcretePiece[] SecondArray = defensePieces;    // A reference to the defenders' array
 
-		if (winner == defender) {						// if the winner is the defender -> change order of the references
+		if (winner == defender) {                        // if the winner is the defender -> change order of the references
 			firstArray = defensePieces;
 			SecondArray = attackPieces;
 		}
 
 		// Print pieces sorted by total moves
-		savePieceSortedByTotalMoves(firstArray);						// (see functions in: "private section" below)
+		savePieceSortedByTotalMoves(firstArray);                        // (see functions in: "private section" below)
 		savePieceSortedByTotalMoves(SecondArray);
 		printSeparator();
 
 		// Print pieces sorted by total killings
-		ConcretePiece[] combinedArray = combineDefenseAndAttack();		// (see functions in: "private section" below)
+		ConcretePiece[] combinedArray = combineDefenseAndAttack();        // (see functions in: "private section" below)
 		savePieceSortedByTotalKills(combinedArray);
 		printSeparator();
 
 		// Print pieces sorted by total distance made
-		savePieceSortedByTotalDistance(combinedArray);					// (see functions in: "private section" below)
+		savePieceSortedByTotalDistance(combinedArray);                    // (see functions in: "private section" below)
 		printSeparator();
 
 
 		// Print squares sorted by total pieces
-		saveSquareSortedByPieces(combinedArray);						// (see functions in: "private section" below)
+		saveSquareSortedByPieces(combinedArray);                        // (see functions in: "private section" below)
 		printSeparator();
 	}
 
@@ -141,7 +141,7 @@ public class GameLogic implements PlayableLogic {
 			if (isKingSurroundedByEnemy())
 				return true;
 		}
-		if (NumberOfAttackersAlive() < 3) {		// see function in: "private section" below
+		if (NumberOfAttackersAlive() < 3) {        // see function in: "private section" below
 			return true;
 		}
 		return false;
@@ -149,8 +149,8 @@ public class GameLogic implements PlayableLogic {
 
 	private int NumberOfAttackersAlive() {
 		int counterAlive = 0;
-		for(int i = 0; i < attackPieces.length; i++){
-			if(attackPieces[i].isAlive() == true){
+		for (int i = 0; i < attackPieces.length; i++) {
+			if (attackPieces[i].isAlive() == true) {
 				counterAlive++;
 			}
 		}
@@ -166,17 +166,21 @@ public class GameLogic implements PlayableLogic {
 	}
 
 	@Override
-	public void undoLastMove() {
+	public void undoLastMove() throws IndexOutOfBoundsException {
+		int size = movesHistory.size();
+		if(movesHistory.size() < 2){	// Check validity of the undo request
+			System.err.println("You cannot use that button. This is the beginning of the game");
+			return;
+		}
 
 		clearBoard();
-		movesHistory.remove(movesHistory.size()-1);
-		movesHistory.remove(movesHistory.size()-1);
-		for (int i = 0; i < movesHistory.size() - 2; i += 2) {
+		movesHistory.remove(size - 1);
+		movesHistory.remove(size - 2);
+		for (int i = 0; i < movesHistory.size(); i += 2) {
 			Position from = movesHistory.get(i);
 			Position to = movesHistory.get(i + 1);
 			restoreMove(from, to);
 		}
-
 	}
 
 	private void restoreMove(Position a, Position b) {
@@ -186,13 +190,18 @@ public class GameLogic implements PlayableLogic {
 		board[b.getRow()][b.getCol()] = piece;
 		board[a.getRow()][a.getCol()] = null;
 
+		// update position of piece and save the new position to the ConcretePiece array of moves
+		piece.moveTo(b);
+
 		// Check if the new position causes to enemy pieces' kill (see function in: "private section" below)
 		if (piece instanceof Pawn) {
 			checkIfEnemyKilled(b, (Pawn) piece, getCurrentPlayer());
 		}
+
 		isDefenderTurn = !isDefenderTurn;
 
 	}
+
 	private void clearBoard() {
 		init();
 		isDefenderTurn = false;
@@ -210,7 +219,6 @@ public class GameLogic implements PlayableLogic {
 	}
 
 
-
 	/////////////////////    PRIVATE SECTION     /////////////////////
 
 
@@ -220,7 +228,7 @@ public class GameLogic implements PlayableLogic {
 				new Position(6, 5), new Position(7, 5), new Position(4, 6), new Position(5, 6), new Position(6, 6), new Position(5, 7)};    // positions of defenders
 		Position[] attackersOriginPosition = {new Position(3, 0), new Position(4, 0), new Position(5, 0), new Position(6, 0), new Position(7, 0), new Position(5, 1),
 				new Position(0, 3), new Position(10, 3), new Position(0, 4), new Position(10, 4), new Position(0, 5), new Position(1, 5),
-				new Position(9, 5),new Position(10, 5), new Position(0, 6), new Position(10, 6), new Position(0, 7), new Position(10, 7),
+				new Position(9, 5), new Position(10, 5), new Position(0, 6), new Position(10, 6), new Position(0, 7), new Position(10, 7),
 				new Position(5, 9), new Position(3, 10), new Position(4, 10), new Position(5, 10), new Position(6, 10), new Position(7, 10)}; // position of attackers
 
 		// For avoidance of doubts, initiate all places on the board with nulls
@@ -236,7 +244,7 @@ public class GameLogic implements PlayableLogic {
 				theKing = new King(defender, defendersOriginPosition[i], i + 1);
 				defensePieces[i] = theKing;
 			} else
-				defensePieces[i] = new Pawn(defender,defendersOriginPosition[i], i + 1);
+				defensePieces[i] = new Pawn(defender, defendersOriginPosition[i], i + 1);
 
 		// Create 24 objects of Pawn for the attackers
 		for (int i = 0; i < attackPieces.length; i++)
@@ -248,7 +256,7 @@ public class GameLogic implements PlayableLogic {
 
 	// This assistance-function mention in: private void init()
 	private void putPiecesOnBoard(ConcretePiece[] pieces, Position[] originPositions) {
-		for(int i = 0; i < pieces.length; i++) {
+		for (int i = 0; i < pieces.length; i++) {
 			ConcretePiece piece = pieces[i];
 			Position pos = piece.getPosition();
 			board[pos.getRow()][pos.getCol()] = piece;
@@ -312,7 +320,7 @@ public class GameLogic implements PlayableLogic {
 					return false;
 				}
 			}
-		} else {                                         	// Case 2: Piece moves vertically
+		} else {                                            // Case 2: Piece moves vertically
 			int start = Math.min(b.getRow(), a.getRow());
 			int end = Math.max(b.getRow(), a.getRow());
 			for (int i = start + 1; i < end; i++) {
@@ -333,6 +341,7 @@ public class GameLogic implements PlayableLogic {
 	}
 
 	// This function checks if a new position causes to enemy pieces' kill (mentioned in: public boolean move(Position a, Position b))
+
 	private void checkIfEnemyKilled(Position pos, Pawn currentPiece, ConcretePlayer currentPlayer) {
 
 		ConcretePiece p;
@@ -353,28 +362,30 @@ public class GameLogic implements PlayableLogic {
 
 					// Case 1: Check if currentPiece captured enemy p with a border
 					if (nextNext == null && p.isNearBoarders(positionsArray[i]) && p.getOwner().toString().equals(enemy.toString())) {
-							killTheEnemy(currentPiece, p, positionsArray[i]);
-							currentPiece.addKill();
+						killTheEnemy(currentPiece, p, positionsArray[i]);
+						currentPiece.addKill();
 					}
 
 					// Case 2: Check if currentPiece captured enemy p with one of the board's corners
 					if (nextNext != null && isCorner(nextNext)) {
-							killTheEnemy(currentPiece, p, positionsArray[i]);
-							currentPiece.addKill();
+						killTheEnemy(currentPiece, p, positionsArray[i]);
+						currentPiece.addKill();
 					}
 
 					// Case 3: Check if currentPiece captured enemy p with its others from its group (and not the King)
 					if (nextNext != null && p.getOwner().toString().equals(enemy.toString()) &&
-							(nextNext.getCol() != theKing.getPosition().getCol() || nextNext.getRow() != theKing.getPosition().getRow())){
-						if ((isPieceOwnerOnPos(nextNext, currentPlayer))){
-								killTheEnemy(currentPiece, p, positionsArray[i]);
-								currentPiece.addKill();
+							(nextNext.getCol() != theKing.getPosition().getCol() || nextNext.getRow() != theKing.getPosition().getRow())) {
+						if ((isPieceOwnerOnPos(nextNext, currentPlayer))) {
+							killTheEnemy(currentPiece, p, positionsArray[i]);
+							currentPiece.addKill();
 						}
 					}
+
 				}
 			}
 		}
 	}
+
 
 	// This assistance-function mention in: private void checkIfEnemyKilled(Position pos, Pawn currentPiece, ConcretePlayer currentPlayer)
 	private void killTheEnemy(Pawn currentPiece, ConcretePiece p, Position position) {

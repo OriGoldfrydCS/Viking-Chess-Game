@@ -12,11 +12,16 @@ public class Pawn extends ConcretePiece {
 	}
 
 	// Methods
-	@Override
-	public String getType() {
-		return "♙";
-	}
 
+	@Override
+	// This method returns the player's tool
+	public String getType() {
+		if(owner.isPlayerOne())
+			return "♙";
+		else
+			return "♟";	}
+
+	// This method return 'D' for defenders and 'A' for attackers
 	public char getPrefix() {
 		if(owner.isPlayerOne())
 			return DEFENSE_CODE;
@@ -31,11 +36,4 @@ public class Pawn extends ConcretePiece {
 	public void addDefeat(){
 		enemyDefeats++;
 	}
-
-
-
-//	@Override
-//	public Player getOwner() {
-//		return getOwner();
-//	}
 }

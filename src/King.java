@@ -6,12 +6,15 @@ public class King extends ConcretePiece {
 	}
 
 	// Methods
+
+	// This method returns the player's tool
 	@Override
 	public String getType() {
 		return "♔";
 	}
-	
+
+	// This method return 'K' for the king
 	public char getPrefix() {
-		return 'K';
+		return KING_CODE;
 	}
 }

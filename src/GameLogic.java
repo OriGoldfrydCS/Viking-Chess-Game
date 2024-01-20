@@ -478,7 +478,7 @@ public class GameLogic implements PlayableLogic {
 		Arrays.sort(piecesArray, new compareById());			// Sort the original array by id
 	}
 
-	// A comparator the sorts all Pieces by their total moves and id (mentioned in: private void showStatistic()
+	// A comparator that sorts all Pieces by their total moves and id (mentioned in: private void showStatistic()
 	class compareByTotalMoves implements Comparator<ConcretePiece> {
 		public int compare(ConcretePiece o1, ConcretePiece o2) {
 			int result = (o1.getTotalMoves() - o2.getTotalMoves());
@@ -490,7 +490,7 @@ public class GameLogic implements PlayableLogic {
 		}
 	}
 
-	// A comparator the sorts all Pieces by their total id (mentioned in: 	private void savePieceSortedByTotalMoves(ConcretePiece[] piecesArray))
+	// A comparator that sorts all Pieces by their total id (mentioned in: 	private void savePieceSortedByTotalMoves(ConcretePiece[] piecesArray))
 	static class compareById implements Comparator<ConcretePiece> {
 		public int compare(ConcretePiece o1, ConcretePiece o2) {
 			return o1.getId() - o2.getId();

@@ -1,6 +1,4 @@
-
-
-public class ConcretePlayer implements Player, Cloneable{		
+public class ConcretePlayer implements Player, Cloneable{
 
 	// Data Members
 	private int victories;					// A variable that counts winnings for Player 1 & 2
@@ -9,7 +7,7 @@ public class ConcretePlayer implements Player, Cloneable{
 	// Constructor
 	public ConcretePlayer(boolean isPlayerOne) {
         this.isPlayerOne = isPlayerOne;
-        this.victories = 0;
+        this.victories = 0;					// Initiate victories counter
     }
 
 	// Methods
@@ -26,5 +24,4 @@ public class ConcretePlayer implements Player, Cloneable{
 	public void incrementVictories() {
 		victories++;
 	}
-
 }

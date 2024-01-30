@@ -1,5 +1,3 @@
-
-
 public class Pawn extends ConcretePiece {
 
 	// Data Members
@@ -12,7 +10,6 @@ public class Pawn extends ConcretePiece {
 	}
 
 	// Methods
-
 	@Override
 	// This method returns the player's tool
 	public String getType() {

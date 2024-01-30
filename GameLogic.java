@@ -1,15 +1,13 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 
 public class GameLogic implements PlayableLogic {
 
 	// Data Members
 	private final ConcretePiece[][] board;                    // A 2D array that represents the board game which stores the ConcretePieces
-	private ArrayList<Position> movesHistory = new ArrayList<Position>();            // an ArrayList to keep track of moves of all players
+	private ArrayList<Position> movesHistory = new ArrayList<Position>();            // An ArrayList to keep track of moves of all players
 	private ConcretePiece[] defensePieces = new ConcretePiece[NUMBER_OF_DEFENDERS];       // 1D Array for storing the defenders
 	private ConcretePiece[] attackPieces = new ConcretePiece[NUMBER_OF_ATTACKERS];        // 1D Array for storing the attackers
 	private final ConcretePlayer defender;                    // A variable represents Player 1
@@ -55,14 +53,14 @@ public class GameLogic implements PlayableLogic {
 			checkIfEnemyKilled(b, (Pawn) piece, getCurrentPlayer());
 		}
 
-		// save move in history - for back bottom
+		// Save move in history - for back bottom
 		movesHistory.add(a);
 		movesHistory.add(b);
 
 		// update position of piece and save the new position to the ConcretePiece array of moves
 		piece.moveTo(b);
 
-		// check if the game finished by one of the relevant rules (see function in: "private section" below)
+		// Check if the game finished by one of the relevant rules (see function in: "private section" below)
 		if (isGameFinished()) {
 			getCurrentPlayer().incrementVictories();
 			showStatistic();
@@ -82,7 +80,7 @@ public class GameLogic implements PlayableLogic {
 		ConcretePiece[] firstArray = attackPieces;        // A reference to the attackers' array
 		ConcretePiece[] SecondArray = defensePieces;    // A reference to the defenders' array
 
-		if (winner == defender) {                        // if the winner is the defender -> change order of the references
+		if (winner == defender) {                        // If the winner is the defender -> change order of the references
 			firstArray = defensePieces;
 			SecondArray = attackPieces;
 		}
@@ -156,9 +154,6 @@ public class GameLogic implements PlayableLogic {
 		return false;
 	}
 
-
-
-
 	@Override
 	public void reset() {
 		init();
@@ -170,18 +165,15 @@ public class GameLogic implements PlayableLogic {
 	@Override
 	public void undoLastMove() {
 		int size = movesHistory.size();
-		if(movesHistory.size() < 2){	// Check validity of the undo request
-			System.err.println("You cannot use the 'back' button. This is the beginning of the game");
-			return;
-		}
-
-		clearBoard();
-		movesHistory.remove(size - 1);
-		movesHistory.remove(size - 2);
-		for (int i = 0; i < movesHistory.size(); i += 2) {
-			Position from = movesHistory.get(i);
-			Position to = movesHistory.get(i + 1);
-			restoreMove(from, to);
+		if(movesHistory.size() >= 2) {    // Check undo request's validity and execute only if one move (at least) remains.
+			clearBoard();
+			movesHistory.remove(size - 1);
+			movesHistory.remove(size - 2);
+			for (int i = 0; i < movesHistory.size(); i += 2) {
+				Position from = movesHistory.get(i);
+				Position to = movesHistory.get(i + 1);
+				restoreMove(from, to);
+			}
 		}
 	}
 
@@ -202,7 +194,6 @@ public class GameLogic implements PlayableLogic {
 		}
 
 		isDefenderTurn = !isDefenderTurn;
-
 	}
 
 	// A method that clears the board
@@ -346,7 +337,6 @@ public class GameLogic implements PlayableLogic {
 	}
 
 	// This function checks if a new position causes to enemy pieces' kill (mentioned in: public boolean move(Position a, Position b))
-
 	private void checkIfEnemyKilled(Position pos, Pawn currentPiece, ConcretePlayer currentPlayer) {
 
 		ConcretePiece p;
@@ -390,14 +380,12 @@ public class GameLogic implements PlayableLogic {
 		}
 	}
 
-
 	// This assistance-function mentioned in: private void checkIfEnemyKilled(Position pos, Pawn currentPiece, ConcretePlayer currentPlayer)
 	private void killTheEnemy(Pawn currentPiece, ConcretePiece p, Position position) {
 		currentPiece.addDefeat();
 		p.setAlive(false);
 		board[position.getRow()][position.getCol()] = null;
 	}
-
 
 	// This assistance-function mentioned in: private void checkIfEnemyKilled(Position pos, Pawn currentPiece, ConcretePlayer currentPlayer)
 	private boolean isPieceOwnerOnPos(Position pos, ConcretePlayer player) {
@@ -408,7 +396,7 @@ public class GameLogic implements PlayableLogic {
 	}
 
 	// This assistance-function mentioned in: private void checkIfEnemyKilled(Position pos, Pawn currentPiece, ConcretePlayer currentPlayer)
-	//								and in: private boolean isValidMove(Position a, Position b) {
+	//								  and in: private boolean isValidMove(Position a, Position b) {
 	private boolean isCorner(Position p) {
 		if(p.equals(CORNER_UP_LEFT) || p.equals(CORNER_UP_RIGHT) || p.equals(CORNER_DOWN_LEFT) || p.equals(CORNER_DOWN_RIGHT))
 			return true;
@@ -454,7 +442,6 @@ public class GameLogic implements PlayableLogic {
 	}
 
 	// This assistance-function mentioned in: private void showStatistic()
-
 	private ConcretePiece[] combineDefenseAndAttack() {
 		ConcretePiece[] res = new ConcretePiece[defensePieces.length + attackPieces.length];
 		int i = 0;
@@ -558,8 +545,6 @@ public class GameLogic implements PlayableLogic {
 		}
 	}
 
-
-
 	// This assistance-function that prints all squares sorted by the number it being stepped during the game (mentioned in: private void showStatistic())
 	private void saveSquareSortedByPieces(ConcretePiece[] combinedArray) {
 		int[][] cellInfo = new int[BOARD_SIZE * BOARD_SIZE][3];		// A 2D array the stores the information about the board game
@@ -587,59 +572,38 @@ public class GameLogic implements PlayableLogic {
 	}
 
 	// An assistance-function that fills the 2D array with the total steps
+	// Use a map to track unique piece identifiers per square
 	private void fillArrayWithMoves(int[][] cellInfo, ConcretePiece[] combinedArray) {
-		// Create a 3D array to keep track of unique piece id for each board square
-		String[][][] visitedPieces = new String[BOARD_SIZE][BOARD_SIZE][combinedArray.length];
-
-		// Initialize the 3D array in nulls (while null means an empty square)
+		HashSet<String>[][] uniquePieces = new HashSet[BOARD_SIZE][BOARD_SIZE];		// Initialize a 2D array that represents the game board.
+																					// Each cell in it corresponds to a position on the board and stores
+																					// a set of unique id ConcretePiece for the pieces that have stepped on that position.
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			for (int j = 0; j < BOARD_SIZE; j++) {
-				Arrays.fill(visitedPieces[i][j], null);
+				uniquePieces[i][j] = new HashSet<>();
 			}
 		}
 
-		// Populate the array with unique piece id, while ensuring uniqueness for each cell
+		// Iterate through each piece in the combined array of pieces.
 		for (ConcretePiece piece : combinedArray) {
-			String pieceIdentifier = piece.getPrefix() + Integer.toString(piece.getId());
+			String pieceId = String.valueOf(piece.getPrefix()) + piece.getId();         // Stores the ConcretePiece's id.
+
+			// For each move of a ConcretePiece, record its id in the corresponding position on the board.
 			for (Position position : piece.getMovesList()) {
 				int row = position.getRow();
 				int col = position.getCol();
-				addUniquePieceId(visitedPieces[row][col], pieceIdentifier);
+				uniquePieces[row][col].add(pieceId);		// By adding the ConcretePiece to the HashSet we guarantee that each ConcretePiece will be counted only once in the set
+															// when stepped on a square, even if it stepped more than that.
 			}
 		}
 
-		// Count unique piece id's for each cell and update cellInfo
-		for (int row = 0; row < BOARD_SIZE; row++) {
-			for (int col = 0; col < BOARD_SIZE; col++) {
-				cellInfo[row * BOARD_SIZE + col][2] = countUniqueIds(visitedPieces[row][col]);
+		// Go through each cell in the board and update the cellInfo array.
+		// cellInfo stores information for each cell, and the third element ([2]) of each cell's array
+		// is updated with the number of unique pieces that have stepped on that cell.
+		for (int i = 0; i < BOARD_SIZE; i++) {
+			for (int j = 0; j < BOARD_SIZE; j++) {
+				cellInfo[i * BOARD_SIZE + j][2] = uniquePieces[i][j].size();
 			}
 		}
-	}
-
-	// An assistance-function that checks if the piece has already stepped on the specific square.
-	// (mentioned in: private void fillArrayWithMoves(int[][] cellInfo, ConcretePiece[] combinedArray))
-	private void addUniquePieceId(String[] ids, String pieceIdentifier) {
-		for (int i = 0; i < ids.length; i++) {
-			if (pieceIdentifier.equals(ids[i])) {
-				return; 								// IF already exists -> don't add
-			}
-			if (ids[i] == null) {
-				ids[i] = pieceIdentifier; 				// Empty square found -> add the identifier
-				return;
-			}
-		}
-	}
-
-	// An assistance-function that counts the number of unique piece id's in an array.
-	// (mentioned in: private void fillArrayWithMoves(int[][] cellInfo, ConcretePiece[] combinedArray))
-	private int countUniqueIds(String[] ids) {
-		int count = 0;
-		for (String id : ids) {
-			if (id != null) {
-				count++;
-			}
-		}
-		return count;
 	}
 
 	// A comparator that sorts all Pieces by total steps made on a square, x's and y's (mention in: private void showStatistic()
@@ -708,13 +672,12 @@ public class GameLogic implements PlayableLogic {
 
 	// This assistance-function mentioned in: private boolean isKingSurroundedByEnemy()
 	private boolean checkIfEnemyThere(Position tocheck, ConcretePlayer enemy) {
-
 		Piece p = getPieceAtPosition(tocheck);
+
 		if (p == null)
 			return false;
 		if (p.getOwner() == enemy)
 			return true;
-
 		return false;
 	}
 

@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-
 public abstract class ConcretePiece implements Piece {
 
 	// Data Members
@@ -14,7 +13,7 @@ public abstract class ConcretePiece implements Piece {
 	private boolean isAlive;       					// A flag if a piece is alive for dead
 	public static final char DEFENSE_CODE = 'D';	// Initial for all defenders' id
 	public static final char ATTACK_CODE = 'A';		// Initial for all attackers' id
-	public static final char KING_CODE = 'K';		// Initial for king's id
+	public static final char KING_CODE = 'K';		// Initial for the king's id
 
 	// Constructor
 	public ConcretePiece(ConcretePlayer owner, Position position, int id) {
@@ -44,7 +43,7 @@ public abstract class ConcretePiece implements Piece {
 	// An abstract method implements in King and Pawn classes that returns 'K', 'D' and 'A' for king, defender and attacker (respectively)
 	public abstract char getPrefix();
 
-	// A method return the prefix of a ConcretePiece (for instance K7, means the king with an id number of 7)
+	// A method return the prefix of a ConcretePiece (for instance: K7 means the king with an id number of 7)
 	public String getOutputPrefix() {
 		char prefix = getPrefix();
 		StringBuffer s = new StringBuffer();

@@ -11,7 +11,7 @@ public class Position {
 	}
 
 	// Methods
-	// 1. Assistance methods (see Getters & Setters below)
+	// 1. Assistance methods
 
 	// This method computes the distances between two squares on the board
 	public int distanceBetweenSquared(Position p){

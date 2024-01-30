@@ -6,7 +6,6 @@ public class King extends ConcretePiece {
 	}
 
 	// Methods
-
 	// This method returns the player's tool
 	@Override
 	public String getType() {
